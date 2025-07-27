@@ -36,16 +36,6 @@ st.markdown("""
     h1, h2, h3, h4 {
         color: #c7d2fe;
     }
-    .emotion-badge {
-        display: inline-block;
-        padding: 0.3em 0.6em;
-        margin-right: 0.5em;
-        margin-bottom: 0.5em;
-        background-color: #334155;
-        border-radius: 6px;
-        color: white;
-        font-size: 0.9em;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -98,37 +88,39 @@ def load_hf_sentiment():
 
 @st.cache_resource
 def load_hf_emotion():
-    return pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=3)
+    return pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=1)
 
 sentiment_clf = load_hf_sentiment()
 emotion_clf = load_hf_emotion()
 
-# ------------------ Dashboard Page ------------------
-if page == "📊 Dashboard":
-    st.title("📊 Team Dashboard Overview")
-    if df is not None:
-        st.subheader("📋 Current Team Data")
-        st.dataframe(df, use_container_width=True)
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("### 🔥 Burnout Risk by Mood")
-            mood_map = df["Mood"].str.lower().apply(
-                lambda x: "High" if any(word in x for word in ["tired", "overwhelmed", "stressed", "anxious", "worried"]) else "Normal"
-            )
-            mood_df = pd.DataFrame({"Name": df["Name"], "Burnout Risk": mood_map})
-            fig = px.histogram(mood_df, x="Burnout Risk", color="Burnout Risk", title="Burnout Risk Distribution")
-            st.plotly_chart(fig, use_container_width=True)
-
-        with col2:
-            st.markdown("### ⚔️ Conflict Risk by DISC + Mood")
-            df["Conflict Risk"] = df.apply(lambda row:
-                "High" if row["DISC"] in ["D", "C"] and any(word in str(row["Mood"]).lower() for word in ["frustrated", "angry", "stuck"]) else "Low",
-                axis=1)
-            fig2 = px.pie(df, names="Conflict Risk", title="Conflict Risk Potential")
-            st.plotly_chart(fig2, use_container_width=True)
+# ------------------ HR Emotion Mapping ------------------
+def map_emotion_to_hr_signal(label):
+    label = label.lower()
+    if label in ["joy", "excitement", "optimism"]:
+        return (
+            "🎯 This team member appears highly engaged and positively oriented toward work. Consider reinforcing with recognition or new challenges.",
+            "McClelland's Theory of Needs (Achievement), Herzberg’s Motivation Factors"
+        )
+    elif label in ["anger", "disgust"]:
+        return (
+            "⚠️ Frustration signals detected. There may be blockers, misalignment, or interpersonal tension. Suggest a coaching-style 1-on-1.",
+            "Herzberg’s Hygiene Factors, Maslow’s Safety Needs"
+        )
+    elif label in ["fear", "sadness"]:
+        return (
+            "🧘 Emotional withdrawal or burnout signs detected. Prioritize emotional safety and check for unmet psychological needs.",
+            "Maslow’s Hierarchy of Needs (Safety & Belonging), Herzberg’s Hygiene Factors"
+        )
+    elif label in ["confusion", "surprise"]:
+        return (
+            "❓ Potential for misalignment or unclear expectations. Clarify direction or restructure goals.",
+            "Tuckman’s Group Development (Storming Phase), Situational Leadership"
+        )
     else:
-        st.warning("No dataset found. Upload or generate one to view the dashboard.")
+        return (
+            "ℹ️ Unable to clearly classify emotion. Default to open-ended check-in.",
+            "General Psychological Safety Principle"
+        )
 
 # ------------------ Analyze Page ------------------
 elif page == "🧠 Analyze Member":
@@ -167,22 +159,25 @@ elif page == "🧠 Analyze Member":
         sentiment_result = sentiment_clf(mood)[0]
         emotion_result = emotion_clf(mood)
 
-        # Fix nested list bug if top_k=3 wraps it in extra list
         if isinstance(emotion_result, list) and isinstance(emotion_result[0], list):
+            emotion_result = emotion_result[0][0]
+        else:
             emotion_result = emotion_result[0]
 
-        st.markdown(f"**🤖 Sentiment:** {sentiment_result['label']} ({round(sentiment_result['score']*100)}%)")
+        emotion_label = emotion_result['label']
+        emotion_score = round(emotion_result['score'] * 100)
 
-        st.markdown("**🧠 Top 3 Emotions:**")
-        for emo in emotion_result:
-            label = emo.get('label', 'Unknown')
-            score = round(emo.get('score', 0) * 100)
-            st.markdown(f"<span class='emotion-badge'>{label.capitalize()}: {score}%</span>", unsafe_allow_html=True)
+        st.markdown(f"**🤖 Sentiment:** {sentiment_result['label']} ({round(sentiment_result['score']*100)}%)")
+        st.markdown(f"**🧠 Primary Emotion:** {emotion_label.capitalize()} ({emotion_score}%)")
+
+        hr_insight, theory_used = map_emotion_to_hr_signal(emotion_label)
+
+        st.markdown("---")
+        st.markdown("**📌 HR Interpretation:**")
+        st.info(hr_insight)
+
+        st.markdown("**📚 Theoretical Basis Used:**")
+        st.success(theory_used)
 
         st.markdown("---")
         st.markdown("_This insight is powered by a small transformer-based AI model hosted locally using HuggingFace._")
-
-# ------------------ Insights Page (Placeholder) ------------------
-elif page == "📈 Insights":
-    st.title("📈 Smart Insights & Manager Nudges")
-    st.markdown("This section will later include LLM-driven suggestions, coaching timelines, and auto-generated 1-on-1 summaries based on behavioral and emotional data.")
