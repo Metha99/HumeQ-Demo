@@ -36,6 +36,16 @@ st.markdown("""
     h1, h2, h3, h4 {
         color: #c7d2fe;
     }
+    .emotion-badge {
+        display: inline-block;
+        padding: 0.3em 0.6em;
+        margin-right: 0.5em;
+        margin-bottom: 0.5em;
+        background-color: #334155;
+        border-radius: 6px;
+        color: white;
+        font-size: 0.9em;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -88,7 +98,7 @@ def load_hf_sentiment():
 
 @st.cache_resource
 def load_hf_emotion():
-    return pipeline("text-classification", model="bhadresh-savani/distilbert-base-uncased-emotion", top_k=1)
+    return pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=3)
 
 sentiment_clf = load_hf_sentiment()
 emotion_clf = load_hf_emotion()
@@ -157,14 +167,11 @@ elif page == "🧠 Analyze Member":
         sentiment_result = sentiment_clf(mood)[0]
         emotion_result = emotion_clf(mood)
 
-        # Ensure proper list unpacking
-        if isinstance(emotion_result, list) and isinstance(emotion_result[0], list):
-            emotion_result = emotion_result[0][0]
-        elif isinstance(emotion_result, list):
-            emotion_result = emotion_result[0]
-
         st.markdown(f"**🤖 Sentiment:** {sentiment_result['label']} ({round(sentiment_result['score']*100)}%)")
-        st.markdown(f"**🧠 Emotion:** {emotion_result['label']} ({round(emotion_result['score']*100)}%)")
+
+        st.markdown("**🧠 Top 3 Emotions:**")
+        for emo in emotion_result:
+            st.markdown(f"<span class='emotion-badge'>{emo['label'].capitalize()}: {round(emo['score']*100)}%</span>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("_This insight is powered by a small transformer-based AI model hosted locally using HuggingFace._")
