@@ -22,20 +22,37 @@ if "logged_in" not in st.session_state:
 
 if not st.session_state.logged_in:
     st.markdown("""
-    <div style='display: flex; justify-content: center; align-items: center; height: 80vh; flex-direction: column;'>
-        <h1 style='color: #ffffff;'>👥 Hume</h1>
-        <h3 style='color: #ccc;'>Human-Centric AI-Powered Manager Assistant</h3>
-        <form action='#'>
-            <button style='padding: 0.6em 2em; font-size: 1.1rem; background-color: #6366f1; color: white; border: none; border-radius: 5px;' type='submit'>Login</button>
-        </form>
-    </div>
+        <style>
+            .login-box {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 80vh;
+                text-align: center;
+            }
+            .login-btn {
+                padding: 0.6em 2em;
+                font-size: 1.1rem;
+                background-color: #6366f1;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                margin-top: 20px;
+            }
+        </style>
+        <div class="login-box">
+            <h1 style="color: #ffffff;">👥 Hume</h1>
+            <h3 style="color: #ccc;">Human-Centric AI-Powered Manager Assistant</h3>
+        </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Login"):
+    if st.button("Login", key="real_login_button"):
         with st.spinner("Authenticating Hume Systems..."):
             time.sleep(5)
         st.session_state.logged_in = True
-        st.experimental_rerun()
+        st.rerun()
+
     st.stop()
 
 # ------------------ App Body ------------------
