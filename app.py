@@ -167,11 +167,17 @@ elif page == "🧠 Analyze Member":
         sentiment_result = sentiment_clf(mood)[0]
         emotion_result = emotion_clf(mood)
 
+        # Fix nested list bug if top_k=3 wraps it in extra list
+        if isinstance(emotion_result, list) and isinstance(emotion_result[0], list):
+            emotion_result = emotion_result[0]
+
         st.markdown(f"**🤖 Sentiment:** {sentiment_result['label']} ({round(sentiment_result['score']*100)}%)")
 
         st.markdown("**🧠 Top 3 Emotions:**")
         for emo in emotion_result:
-            st.markdown(f"<span class='emotion-badge'>{emo['label'].capitalize()}: {round(emo['score']*100)}%</span>", unsafe_allow_html=True)
+            label = emo.get('label', 'Unknown')
+            score = round(emo.get('score', 0) * 100)
+            st.markdown(f"<span class='emotion-badge'>{label.capitalize()}: {score}%</span>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("_This insight is powered by a small transformer-based AI model hosted locally using HuggingFace._")
