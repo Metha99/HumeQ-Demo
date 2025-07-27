@@ -16,16 +16,63 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ------------------ Login Screen ------------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.markdown("""
+    <div style='display: flex; justify-content: center; align-items: center; height: 80vh; flex-direction: column;'>
+        <h1 style='color: #ffffff;'>👥 Hume</h1>
+        <h3 style='color: #ccc;'>Human-Centric AI-Powered Manager Assistant</h3>
+        <form action='#'>
+            <button style='padding: 0.6em 2em; font-size: 1.1rem; background-color: #6366f1; color: white; border: none; border-radius: 5px;' type='submit'>Login</button>
+        </form>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Login"):
+        with st.spinner("Authenticating Hume Systems..."):
+            time.sleep(5)
+        st.session_state.logged_in = True
+        st.experimental_rerun()
+    st.stop()
+
+# ------------------ App Body ------------------
 st.title("👥 Hume – Human-Centric Manager Assistant")
 st.markdown("---")
 
 # ------------------ Dataset (Optional Display) ------------------
 st.subheader("📋 Team Dataset (Optional, for Demo Viewing)")
+df = None
 try:
     df = pd.read_csv("hume_demo_team_data.csv")
     st.dataframe(df, use_container_width=True)
 except:
     st.warning("Dataset not found. You can still try the analysis below by entering new data.")
+
+# ------------------ Team-Wide Charts ------------------
+if df is not None:
+    st.markdown("---")
+    st.subheader("📊 Team-Wide Analytics")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### 🔥 Burnout Risk by Mood")
+        mood_map = df["Mood"].str.lower().apply(
+            lambda x: "High" if any(word in x for word in ["tired", "overwhelmed", "stressed", "anxious", "worried"]) else "Normal"
+        )
+        mood_df = pd.DataFrame({"Name": df["Name"], "Burnout Risk": mood_map})
+        fig = px.histogram(mood_df, x="Burnout Risk", color="Burnout Risk", title="Burnout Risk Distribution")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.markdown("### ⚔️ Conflict Risk by DISC + Mood")
+        df["Conflict Risk"] = df.apply(lambda row:
+            "High" if row["DISC"] in ["D", "C"] and any(word in str(row["Mood"]).lower() for word in ["frustrated", "angry", "stuck"]) else "Low",
+            axis=1)
+        fig2 = px.pie(df, names="Conflict Risk", title="Conflict Risk Potential")
+        st.plotly_chart(fig2, use_container_width=True)
 
 # ------------------ Add New Member Section ------------------
 st.markdown("---")
