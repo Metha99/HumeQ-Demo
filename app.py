@@ -155,12 +155,17 @@ elif page == "🧠 Analyze Member":
         st.subheader(f"🔍 AI-Powered Analysis for {name}")
 
         sentiment_result = sentiment_clf(mood)[0]
-        emotion_result = emotion_clf(mood)[0]
+        emotion_result = emotion_clf(mood)
+
+        # Ensure proper list unpacking
+        if isinstance(emotion_result, list) and isinstance(emotion_result[0], list):
+            emotion_result = emotion_result[0][0]
+        elif isinstance(emotion_result, list):
+            emotion_result = emotion_result[0]
 
         st.markdown(f"**🤖 Sentiment:** {sentiment_result['label']} ({round(sentiment_result['score']*100)}%)")
         st.markdown(f"**🧠 Emotion:** {emotion_result['label']} ({round(emotion_result['score']*100)}%)")
 
-        # Add more hardcoded insights if needed for demo effect
         st.markdown("---")
         st.markdown("_This insight is powered by a small transformer-based AI model hosted locally using HuggingFace._")
 
