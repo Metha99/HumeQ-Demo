@@ -13,6 +13,13 @@ st.markdown("""
     .main {background-color: #111827; color: white;}
     .block-container {padding-top: 2rem;}
     .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {color: #93c5fd;}
+    .form-container {
+        background-color: #1f2937;
+        padding: 2rem;
+        border-radius: 10px;
+        border: 1px solid #374151;
+        margin-bottom: 2rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -64,6 +71,7 @@ st.subheader("📋 Team Dataset (Optional, for Demo Viewing)")
 df = None
 try:
     df = pd.read_csv("hume_demo_team_data.csv")
+    df = df.drop(columns=["ManagerMood"], errors="ignore")
     st.dataframe(df, use_container_width=True)
 except:
     st.warning("Dataset not found. You can still try the analysis below by entering new data.")
@@ -94,6 +102,7 @@ if df is not None:
 # ------------------ Add New Member Section ------------------
 st.markdown("---")
 st.subheader("➕ Analyze a New Team Member")
+st.markdown("""<div class='form-container'>""", unsafe_allow_html=True)
 
 with st.form("member_form"):
     col1, col2, col3 = st.columns(3)
@@ -118,13 +127,14 @@ with st.form("member_form"):
 
     submitted = st.form_submit_button("Analyze Team Member")
 
+st.markdown("</div>", unsafe_allow_html=True)
+
 # ------------------ Analysis Logic ------------------
 def analyze_theory(name, disc, bigfive, motivation, mood, perf, goal, manager_mood):
     insights = []
     chart_data = {}
     explanation = []
 
-    # DISC insights
     if disc == "D":
         insights.append("🧠 Dominant personality – direct, challenge-driven, prefers strategic tasks.")
         explanation.append("D-type prefers to take control and thrives when given leadership opportunities or decision-making power.")
@@ -138,7 +148,6 @@ def analyze_theory(name, disc, bigfive, motivation, mood, perf, goal, manager_mo
         insights.append("📊 Conscientious – prefers structure, data, and well-defined goals.")
         explanation.append("C-types want clarity and logic. Overcommunication and ambiguity may cause frustration.")
 
-    # Motivation insight (McClelland)
     if motivation == "Achievement":
         insights.append("🎯 Achievement-driven – assign goal-oriented, challenging work.")
         explanation.append("This team member thrives on hitting measurable outcomes and goal posts.")
@@ -149,7 +158,6 @@ def analyze_theory(name, disc, bigfive, motivation, mood, perf, goal, manager_mo
         insights.append("🧭 Power-driven – values influence and leadership opportunities.")
         explanation.append("Delegate high-ownership tasks and involve in decision-making.")
 
-    # Mood interpretation (Maslow or burnout signal)
     mood_words = mood.lower()
     if any(word in mood_words for word in ["tired", "stressed", "overwhelmed", "anxious"]):
         insights.append("⚠️ Emotional fatigue detected – may need support or recovery time.")
@@ -159,13 +167,11 @@ def analyze_theory(name, disc, bigfive, motivation, mood, perf, goal, manager_mo
     elif "thoughtful" in mood_words:
         insights.append("🧘 Reflective mood – check if they need quiet time or are blocked.")
 
-    # Manager readiness
     if manager_mood.lower() in ["frustrated", "busy"]:
         insights.append("🛑 You may want to pause – your current mood may impact the conversation.")
     else:
         insights.append("✅ You are emotionally ready to engage constructively.")
 
-    # Skill mapping visualization (Goal Radar)
     chart_data = {
         "labels": ["Strategy", "Execution", "Teamwork", "Creativity", "Growth"],
         "values": [
