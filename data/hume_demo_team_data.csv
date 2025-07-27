@@ -1,0 +1,11 @@
+Name,Role,DISC,BigFive,Motivation,Mood,PerformanceTrend,Last1on1,Goal,ManagerMood
+Sarah Lee,Product Designer,S,High Agreeableness,Achievement,"Tired, stuck",Down,2025-07-01,Move into strategy,Frustrated
+James Kim,Backend Engineer,C,High Conscientiousness,Power,Focused,Stable,2025-07-15,Become Tech Lead,Calm
+Aisha Patel,QA Analyst,I,High Extraversion,Affiliation,Overwhelmed,Slight Decline,2025-07-05,Improve automation skills,Busy
+Daniel Wu,Frontend Developer,D,Low Neuroticism,Achievement,Energetic,Up,2025-07-20,Lead UI redesign,Positive
+Maya Singh,Project Manager,C,High Conscientiousness,Power,Anxious,Flat,2025-06-25,Cross-team leadership,Neutral
+Leo Garcia,DevOps Engineer,S,Low Extraversion,Affiliation,Fine,Stable,2025-07-10,Infrastructure automation,Positive
+Emily Chen,Data Scientist,D,High Openness,Achievement,Inspired,Strong Upward,2025-07-18,Publish internal research,Supportive
+Mohamed Hassan,Security Analyst,C,High Conscientiousness,Power,Worried,Drop,2025-06-30,Security team lead,Concerned
+Isabella Rossi,UX Researcher,I,High Agreeableness,Affiliation,Thoughtful,Stable,2025-07-12,Improve research visibility,Calm
+Ethan Johnson,AI Engineer,D,High Openness,Achievement,Stressed,Volatile,2025-07-03,Deploy ML platform,Busy
