@@ -122,6 +122,33 @@ def map_emotion_to_hr_signal(label):
             "General Psychological Safety Principle"
         )
 
+# ------------------ Dashboard Page ------------------
+if page == "📊 Dashboard":
+    st.title("📊 Team Dashboard Overview")
+    if df is not None:
+        st.subheader("📋 Current Team Data")
+        st.dataframe(df, use_container_width=True)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### 🔥 Burnout Risk by Mood")
+            mood_map = df["Mood"].str.lower().apply(
+                lambda x: "High" if any(word in x for word in ["tired", "overwhelmed", "stressed", "anxious", "worried"]) else "Normal"
+            )
+            mood_df = pd.DataFrame({"Name": df["Name"], "Burnout Risk": mood_map})
+            fig = px.histogram(mood_df, x="Burnout Risk", color="Burnout Risk", title="Burnout Risk Distribution")
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            st.markdown("### ⚔️ Conflict Risk by DISC + Mood")
+            df["Conflict Risk"] = df.apply(lambda row:
+                "High" if row["DISC"] in ["D", "C"] and any(word in str(row["Mood"]).lower() for word in ["frustrated", "angry", "stuck"]) else "Low",
+                axis=1)
+            fig2 = px.pie(df, names="Conflict Risk", title="Conflict Risk Potential")
+            st.plotly_chart(fig2, use_container_width=True)
+    else:
+        st.warning("No dataset found. Upload or generate one to view the dashboard.")
+
 # ------------------ Analyze Page ------------------
 elif page == "🧠 Analyze Member":
     st.title("🧠 Analyze a New Team Member")
@@ -181,3 +208,8 @@ elif page == "🧠 Analyze Member":
 
         st.markdown("---")
         st.markdown("_This insight is powered by a small transformer-based AI model hosted locally using HuggingFace._")
+
+# ------------------ Insights Page (Placeholder) ------------------
+elif page == "📈 Insights":
+    st.title("📈 Smart Insights & Manager Nudges")
+    st.markdown("This section will later include LLM-driven suggestions, coaching timelines, and auto-generated 1-on-1 summaries based on behavioral and emotional data.")
