@@ -1,6 +1,7 @@
 import pandas as pd
+import streamlit as st
 
-# Create a mock dataset with 10 members for the Hume demo
+# --- Create Dataset ---
 data = [
     {
         "Name": "Sarah Lee",
@@ -125,8 +126,13 @@ data = [
 ]
 
 df = pd.DataFrame(data)
-csv_path = "data/hume_demo_team_data.csv"
-df.to_csv(csv_path, index=False)
 
-import ace_tools as tools; tools.display_dataframe_to_user(name="Hume Demo Team Dataset", dataframe=df)
-csv_path
+# --- Save the CSV locally (only for local development/testing) ---
+df.to_csv("hume_demo_team_data.csv", index=False)
+
+# --- Streamlit Display ---
+st.set_page_config(page_title="Hume Demo", layout="wide")
+st.title("👥 Hume – Human-Centric Manager Demo")
+
+st.subheader("📋 Team Member Dataset")
+st.dataframe(df)
