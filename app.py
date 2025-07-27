@@ -125,7 +125,7 @@ data = [
 ]
 
 df = pd.DataFrame(data)
-csv_path = "/mnt/data/hume_demo_team_data.csv"
+csv_path = "data/hume_demo_team_data.csv"
 df.to_csv(csv_path, index=False)
 
 import ace_tools as tools; tools.display_dataframe_to_user(name="Hume Demo Team Dataset", dataframe=df)
